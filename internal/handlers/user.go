@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/guilherme-torres/go-blog/internal/models"
@@ -17,30 +16,17 @@ func NewUserHandler(userService *services.UserService) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
-func (handler *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (handler *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 	user := &models.CreateUserDTO{}
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
-		http.Error(w, "", 500)
-		return
+		return err
 	}
+	defer r.Body.Close()
 	err = handler.userService.CreateUser(user)
 	if err != nil {
-		http.Error(w, "", 400)
-		return
+		return err
 	}
 	w.WriteHeader(201)
-	fmt.Fprintf(w, "")
-}
-
-func (handler *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func (handler *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func (handler *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-
+	return nil
 }
