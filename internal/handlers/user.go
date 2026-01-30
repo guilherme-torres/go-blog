@@ -27,6 +27,6 @@ func (handler *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) e
 	if err != nil {
 		return err
 	}
-	w.WriteHeader(201)
+	w.WriteHeader(http.StatusCreated)
 	return nil
 }

@@ -77,6 +77,30 @@ func (repo *UserRepository) Get(id int) (*models.UserDB, error) {
 	return user, nil
 }
 
+func (repo *UserRepository) FindByEmail(email string) (*models.UserDB, error) {
+	row := repo.db.QueryRow(`
+		SELECT "id", "name", "email", "password_hash", "role", "created_at", "updated_at"
+		FROM "users" WHERE "email" = ?`, email,
+	)
+	user := &models.UserDB{}
+	err := row.Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.PasswordHash,
+		&user.Role,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return user, nil
+}
+
 func (repo *UserRepository) Update(id int, user *models.UserDB) {
 
 }

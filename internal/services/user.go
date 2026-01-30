@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/guilherme-torres/go-blog/internal/errors"
+	app_errors "github.com/guilherme-torres/go-blog/internal/errors"
 	"github.com/guilherme-torres/go-blog/internal/models"
 	"github.com/guilherme-torres/go-blog/internal/repositories"
 	"github.com/guilherme-torres/go-blog/internal/utils"
@@ -18,7 +18,7 @@ func NewUserService(userRepo *repositories.UserRepository) *UserService {
 func (service *UserService) CreateUser(user *models.CreateUserDTO) error {
 	passwordHash, err := utils.HashPassword(user.Password)
 	if err != nil {
-		return app_errors.InvalidCredentials
+		return err
 	}
 	newUser := &models.CreateUserDB{
 		Name:         user.Name,
@@ -27,7 +27,7 @@ func (service *UserService) CreateUser(user *models.CreateUserDTO) error {
 	}
 	rowsAffected, err := service.userRepo.Create(newUser)
 	if err != nil {
-		return app_errors.GenericUserError
+		return err
 	}
 	if rowsAffected == 0 {
 		return app_errors.UserAlreadyExists
@@ -45,8 +45,8 @@ func (service *UserService) GetUser(id int) (*models.ListUserDTO, error) {
 		return nil, app_errors.UserNotFound
 	}
 	return &models.ListUserDTO{
-		ID: user.ID,
-		Name: user.Name,
+		ID:    user.ID,
+		Name:  user.Name,
 		Email: user.Email,
 	}, nil
 }

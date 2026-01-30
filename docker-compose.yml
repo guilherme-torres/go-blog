@@ -1,0 +1,18 @@
+services:
+  app:
+    build: .
+    container_name: go-blog
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:

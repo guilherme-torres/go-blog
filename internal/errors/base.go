@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -29,6 +30,7 @@ func HandleErrors(handler Handler) http.HandlerFunc {
 				json.NewEncoder(w).Encode(appError)
 				return
 			} else {
+				log.Printf("error: %s\n", err.Error())
 				internalError := map[string]any{
 					"statusCode": http.StatusInternalServerError,
 					"message":    "internal server error",
