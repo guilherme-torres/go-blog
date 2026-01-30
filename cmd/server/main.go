@@ -9,6 +9,7 @@ import (
 
 	app_errors "github.com/guilherme-torres/go-blog/internal/errors"
 	"github.com/guilherme-torres/go-blog/internal/handlers"
+	"github.com/guilherme-torres/go-blog/internal/middlewares"
 	"github.com/guilherme-torres/go-blog/internal/repositories"
 	"github.com/guilherme-torres/go-blog/internal/services"
 	"github.com/guilherme-torres/go-blog/internal/utils"
@@ -48,11 +49,15 @@ func main() {
 	mux.HandleFunc("POST /users", app_errors.HandleErrors(userHandler.CreateUser))
 	mux.HandleFunc("POST /auth/login", app_errors.HandleErrors(authHandler.Login))
 	mux.HandleFunc("GET /auth/login", app_errors.HandleErrors(authHandler.Login))
-	mux.HandleFunc("GET /admin", app_errors.HandleErrors(func(w http.ResponseWriter, r *http.Request) error {
-		tmpl := template.Must(template.ParseFiles("./assets/templates/admin.html"))
-		tmpl.Execute(w, nil)
-		return nil
-	}))
+	mux.HandleFunc("GET /admin", app_errors.HandleErrors(
+		middlewares.AuthMiddleware(
+			func(w http.ResponseWriter, r *http.Request) error {
+				tmpl := template.Must(template.ParseFiles("./assets/templates/admin.html"))
+				tmpl.Execute(w, nil)
+				return nil
+			},
+		),
+	))
 
 	if err := http.ListenAndServe(":8000", mux); err != nil {
 		log.Fatal("Erro ao iniciar o servidor:", err)
