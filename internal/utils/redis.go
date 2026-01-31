@@ -32,3 +32,10 @@ func (r *RedisClient) Get(ctx context.Context, key string) (string, error) {
 	}
 	return value, nil
 }
+
+func (r *RedisClient) Del(ctx context.Context, key string) error {
+	if err := r.client.Del(ctx, key).Err(); err != nil {
+		return err
+	}
+	return nil
+}

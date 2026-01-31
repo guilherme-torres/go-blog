@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/hex"
+	"strconv"
 	"time"
 
 	app_errors "github.com/guilherme-torres/go-blog/internal/errors"
@@ -43,4 +44,43 @@ func (service *AuthService) Login(ctx context.Context, data *models.LoginDTO) (s
 		return "", err
 	}
 	return sidString, nil
+}
+
+func (service *AuthService) Logout(ctx context.Context, sid string) error {
+	sidHashBytes, err := utils.Sha256Hash(sid)
+	if err != nil {
+		return err
+	}
+	sidHashString := hex.EncodeToString(sidHashBytes)
+	if err := service.redisClient.Del(ctx, "session:" + sidHashString); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (service *AuthService) VerifySession(ctx context.Context, sid string) (*models.UserDB, error) {
+	sidHashBytes, err := utils.Sha256Hash(sid)
+	if err != nil {
+		return nil, err
+	}
+	sidHashString := hex.EncodeToString(sidHashBytes)
+	value, err := service.redisClient.Get(ctx, "session:" + sidHashString)
+	if err != nil {
+		return nil, err
+	}
+	if value == "" {
+		return nil, app_errors.Unauthenticated
+	}
+	userID, err := strconv.Atoi(value)
+    if err != nil {
+        return nil, err
+    }
+	user, err := service.userRepo.Get(userID)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, app_errors.Unauthenticated
+	}
+	return user, nil
 }
