@@ -16,8 +16,8 @@ func NewUserRepo(db *sql.DB) *UserRepository {
 
 func (repo *UserRepository) Create(user *models.CreateUserDB) (int64, error) {
 	result, err := repo.db.Exec(`
-		INSERT OR IGNORE INTO users (name, email, password_hash) VALUES (?, ?, ?)
-	`, user.Name, user.Email, user.PasswordHash)
+		INSERT OR IGNORE INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)
+	`, user.Name, user.Email, user.PasswordHash, user.Role)
 	if err != nil {
 		return 0, err
 	}

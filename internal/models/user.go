@@ -14,12 +14,14 @@ type CreateUserDB struct {
 	Name         string
 	Email        string
 	PasswordHash string
+	Role         string
 }
 
 type CreateUserDTO struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Role     string `json:"role"`
 }
 
 type ListUserDTO struct {

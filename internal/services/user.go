@@ -24,6 +24,7 @@ func (service *UserService) CreateUser(user *models.CreateUserDTO) error {
 		Name:         user.Name,
 		Email:        user.Email,
 		PasswordHash: passwordHash,
+		Role:         user.Role,
 	}
 	rowsAffected, err := service.userRepo.Create(newUser)
 	if err != nil {

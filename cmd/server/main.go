@@ -49,7 +49,12 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /users", app_errors.HandleErrors(userHandler.CreateUser))
+	mux.HandleFunc("POST /users", app_errors.HandleErrors(
+		middlewares.AuthMiddleware(
+			middlewares.VerifyRole(userHandler.CreateUser, []string{"admin"}, authService),
+			authService,
+		),
+	))
 	mux.HandleFunc("POST /admin/login", app_errors.HandleErrors(authHandler.Login))
 	mux.HandleFunc("GET /admin/login", app_errors.HandleErrors(authHandler.Login))
 	mux.HandleFunc("POST /admin/logout", app_errors.HandleErrors(middlewares.AuthMiddleware(authHandler.Logout, authService)))
