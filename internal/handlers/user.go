@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"html/template"
 	"net/http"
 
 	"github.com/guilherme-torres/go-blog/internal/models"
@@ -28,5 +29,11 @@ func (handler *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) e
 		return err
 	}
 	w.WriteHeader(http.StatusCreated)
+	return nil
+}
+
+func (handler *UserHandler) Admin(w http.ResponseWriter, r *http.Request) error {
+	tmpl := template.Must(template.ParseFiles("./assets/templates/admin.html"))
+	tmpl.Execute(w, nil)
 	return nil
 }

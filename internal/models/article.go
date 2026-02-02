@@ -15,6 +15,12 @@ type CreateArticleDB struct {
 	AuthorID int
 }
 
+type UpdateArticleDB struct {
+	Title     *string
+	Content   *string
+	UpdatedAt string
+}
+
 type CreateArticleDTO struct {
 	Title   string `json:"title"`
 	Content string `json:"content"`

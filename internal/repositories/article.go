@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"strings"
 
 	"github.com/guilherme-torres/go-blog/internal/models"
 )
@@ -16,7 +17,7 @@ func NewArticleRepo(db *sql.DB) *ArticleRepository {
 
 func (repo *ArticleRepository) Create(article *models.CreateArticleDB) (int64, error) {
 	result, err := repo.db.Exec(`
-		INSERT OR IGNORE INTO "articles" ("title", "content", "author_id") VALUES (?, ?, ?)
+		INSERT OR IGNORE INTO articles (title, content, author_id) VALUES (?, ?, ?)
 	`, article.Title, article.Content, article.AuthorID)
 	if err != nil {
 		return 0, err
@@ -29,7 +30,7 @@ func (repo *ArticleRepository) Create(article *models.CreateArticleDB) (int64, e
 }
 
 func (repo *ArticleRepository) List() ([]*models.ArticleDB, error) {
-	rows, err := repo.db.Query(`SELECT "id", "title", "content", "author_id", "published_at", "updated_at" FROM "articles"`)
+	rows, err := repo.db.Query(`SELECT id, title, content, author_id, published_at, updated_at FROM articles`)
 	if err != nil {
 		return nil, err
 	}
@@ -54,8 +55,8 @@ func (repo *ArticleRepository) List() ([]*models.ArticleDB, error) {
 
 func (repo *ArticleRepository) Get(id int) (*models.ArticleDB, error) {
 	row := repo.db.QueryRow(`
-		SELECT "id", "title", "content", "author_id", "published_at", "updated_at"
-		FROM "users" WHERE "id" = ?`, id,
+		SELECT id, title, content, author_id, published_at, updated_at
+		FROM articles WHERE id = ?`, id,
 	)
 	article := &models.ArticleDB{}
 	err := row.Scan(
@@ -75,20 +76,39 @@ func (repo *ArticleRepository) Get(id int) (*models.ArticleDB, error) {
 	return article, nil
 }
 
-func (repo *ArticleRepository) Update(id int, article *models.ArticleDB) {
-
+func (repo *ArticleRepository) Update(id int, article *models.UpdateArticleDB) error {
+	query := `UPDATE articles SET `
+	var args []any
+	var updates []string
+	if article.Title != nil {
+		updates = append(updates, "title = ?")
+		args = append(args, *article.Title)
+	}
+	if article.Content != nil {
+		updates = append(updates, "content = ?")
+		args = append(args, *article.Content)
+	}
+	updates = append(updates, "updated_at = ?")
+	args = append(args, article.UpdatedAt)
+	if len(updates) == 0 {
+		return nil
+	}
+	query += strings.Join(updates, ", ") + "WHERE id = ?"
+	args = append(args, id)
+	_, err := repo.db.Exec(query, args...)
+	return err
 }
 
 func (repo *ArticleRepository) Delete(id int) (int64, error) {
 	result, err := repo.db.Exec(`
-		DELETE FROM "articles" WHERE "id" = ?
+		DELETE FROM articles WHERE id = ?
 	`, id)
 	if err != nil {
 		return 0, err
 	}
-	rowAffected, err := result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return 0, err
 	}
-	return rowAffected, nil
+	return rowsAffected, nil
 }

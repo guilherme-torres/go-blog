@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"html/template"
 	"log"
 	"net/http"
 
@@ -44,6 +43,10 @@ func main() {
 	authService := services.NewAuthService(userRepo, redisClient)
 	authHandler := handlers.NewAuthHandler(authService)
 
+	articleRepo := repositories.NewArticleRepo(db)
+	articleService := services.NewArticleService(articleRepo)
+	articleHandler := handlers.NewArticleHandler(articleService)
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /users", app_errors.HandleErrors(userHandler.CreateUser))
@@ -52,14 +55,24 @@ func main() {
 	mux.HandleFunc("POST /admin/logout", app_errors.HandleErrors(middlewares.AuthMiddleware(authHandler.Logout, authService)))
 	mux.HandleFunc("GET /admin", app_errors.HandleErrors(
 		middlewares.AuthMiddleware(
-			func(w http.ResponseWriter, r *http.Request) error {
-				tmpl := template.Must(template.ParseFiles("./assets/templates/admin.html"))
-				tmpl.Execute(w, nil)
-				return nil
-			},
+			middlewares.VerifyRole(userHandler.Admin, []string{"admin", "editor"}, authService),
 			authService,
 		),
 	))
+	mux.HandleFunc("POST /articles/new", app_errors.HandleErrors(
+		middlewares.AuthMiddleware(
+			middlewares.VerifyRole(articleHandler.CreateArticle, []string{"admin", "editor"}, authService),
+			authService,
+		),
+	))
+	mux.HandleFunc("DELETE /articles/delete", app_errors.HandleErrors(
+		middlewares.AuthMiddleware(
+			middlewares.VerifyRole(articleHandler.DeleteArticle, []string{"admin", "editor"}, authService),
+			authService,
+		),
+	))
+	mux.HandleFunc("GET /articles/{id}", app_errors.HandleErrors(articleHandler.GetArticle))
+	mux.HandleFunc("GET /articles", app_errors.HandleErrors(articleHandler.ListArticles))
 
 	if err := http.ListenAndServe(":8000", mux); err != nil {
 		log.Fatal("Erro ao iniciar o servidor:", err)

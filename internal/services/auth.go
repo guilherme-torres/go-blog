@@ -46,7 +46,7 @@ func (service *AuthService) Login(ctx context.Context, data *models.LoginDTO) (s
 	return sidString, nil
 }
 
-func (service *AuthService) Logout(ctx context.Context, sid string) error {
+func (service *AuthService) DeleteSession(ctx context.Context, sid string) error {
 	sidHashBytes, err := utils.Sha256Hash(sid)
 	if err != nil {
 		return err

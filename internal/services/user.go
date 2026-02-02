@@ -54,7 +54,7 @@ func (service *UserService) GetUser(id int) (*models.ListUserDTO, error) {
 func (service *UserService) DeleteUser(id int) error {
 	rowsAffected, err := service.userRepo.Delete(id)
 	if err != nil {
-		return app_errors.GenericUserError
+		return err
 	}
 	if rowsAffected == 0 {
 		return app_errors.UserNotFound

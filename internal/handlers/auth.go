@@ -53,8 +53,7 @@ func (handler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error 
 
 func (handler *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) error {
 	sid := r.Context().Value("sid").(string)
-	err := handler.authService.Logout(r.Context(), sid)
-	if err != nil {
+	if err := handler.authService.DeleteSession(r.Context(), sid); err != nil {
 		return err
 	}
 	cookie := &http.Cookie{
