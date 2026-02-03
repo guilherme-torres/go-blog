@@ -10,6 +10,8 @@ import (
 	"github.com/guilherme-torres/go-blog/internal/services"
 )
 
+const SessionDuration = 40 * 60
+
 func AuthMiddleware(handler app_errors.Handler, authService *services.AuthService) app_errors.Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		cookie, err := r.Cookie("sid")
@@ -23,20 +25,11 @@ func AuthMiddleware(handler app_errors.Handler, authService *services.AuthServic
 		sid := cookie.Value
 		user, err := authService.VerifySession(r.Context(), sid)
 		if err != nil {
-			cookie := &http.Cookie{
-				Name:     "sid",
-				Value:    "",
-				Path:     "/",
-				MaxAge:   -1,
-				HttpOnly: true,
-				Secure:   true,
-				SameSite: http.SameSiteLaxMode,
-			}
-			http.SetCookie(w, cookie)
+			clearSessionCookie(w)
 			http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 			return nil
 		}
-		// TODO: armazenar um hashmap contendo o "user_id", "sid" e outros dados relevantes
+		refreshSessionCookie(w, sid)
 		ctx := context.WithValue(r.Context(), "user_id", user.ID)
 		ctx = context.WithValue(ctx, "sid", sid)
 		ctx = context.WithValue(ctx, "user_role", user.Role)
@@ -53,19 +46,32 @@ func VerifyRole(handler app_errors.Handler, roles []string, authService *service
 			if err := authService.DeleteSession(r.Context(), sid); err != nil {
 				return err
 			}
-			cookie := &http.Cookie{
-				Name:     "sid",
-				Value:    "",
-				Path:     "/",
-				MaxAge:   -1,
-				HttpOnly: true,
-				Secure:   true,
-				SameSite: http.SameSiteLaxMode,
-			}
-			http.SetCookie(w, cookie)
+			clearSessionCookie(w)
 			errorTmpl.Execute(w, nil)
 			return nil
 		}
 		return handler(w, r)
 	}
+}
+
+func refreshSessionCookie(w http.ResponseWriter, sid string) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "sid",
+		Value:    sid,
+		Path:     "/",
+		MaxAge:   SessionDuration,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+func clearSessionCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "sid",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+	})
 }

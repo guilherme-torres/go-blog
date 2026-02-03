@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	// "encoding/json"
 	"html/template"
 	"net/http"
 
@@ -20,11 +19,6 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 func (handler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "POST" {
 		loginData := &models.LoginDTO{}
-		// err := json.NewDecoder(r.Body).Decode(loginData)
-		// if err != nil {
-		// 	return err
-		// }
-		// defer r.Body.Close()
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 		loginData.Email = email
@@ -37,7 +31,7 @@ func (handler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error 
 			Name:     "sid",
 			Value:    sid,
 			Path:     "/",
-			MaxAge:   3600,
+			MaxAge:   2400,
 			HttpOnly: true,
 			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
@@ -62,8 +56,6 @@ func (handler *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) error
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
 	}
 	http.SetCookie(w, cookie)
 	http.Redirect(w, r, "/admin/login", http.StatusSeeOther)

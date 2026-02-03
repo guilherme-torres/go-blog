@@ -36,8 +36,19 @@ func (service *UserService) CreateUser(user *models.CreateUserDTO) error {
 	return nil
 }
 
-func (service *UserService) ListUsers() {
-
+func (service *UserService) ListUsers() ([]*models.ListUserDTO, error) {
+	users, err := service.userRepo.List()
+	if err != nil {
+		return nil, err
+	}
+	usersResponse := utils.Map(users, func(user *models.UserDB) *models.ListUserDTO {
+		return &models.ListUserDTO{
+			ID:    user.ID,
+			Name:  user.Name,
+			Email: user.Email,
+		}
+	})
+	return usersResponse, nil
 }
 
 func (service *UserService) GetUser(id int) (*models.ListUserDTO, error) {

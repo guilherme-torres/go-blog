@@ -39,7 +39,7 @@ func (service *AuthService) Login(ctx context.Context, data *models.LoginDTO) (s
 		return "", err
 	}
 	sidHashString := hex.EncodeToString(sidHashBytes)
-	expTime := 1 * time.Minute
+	expTime := 40 * time.Minute
 	if err := service.redisClient.Set(ctx, "session:" + sidHashString, user.ID, expTime); err != nil {
 		return "", err
 	}
@@ -81,6 +81,11 @@ func (service *AuthService) VerifySession(ctx context.Context, sid string) (*mod
 	}
 	if user == nil {
 		return nil, app_errors.Unauthenticated
+	}
+	// extende o tempo de expiração da sessão após uma interação do usuário
+	expTime := 40 * time.Minute
+	if err := service.redisClient.Set(ctx, "session:" + sidHashString, user.ID, expTime); err != nil {
+		return nil, err
 	}
 	return user, nil
 }

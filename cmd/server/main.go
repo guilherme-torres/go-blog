@@ -17,6 +17,7 @@ import (
 )
 
 func main() {
+	
 	db, err := sql.Open("sqlite3", "./blog.db")
 	if err != nil {
 		log.Fatal(err)
@@ -28,7 +29,7 @@ func main() {
 	userRepo := repositories.NewUserRepo(db)
 	userService := services.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
-
+	
 	ctx := context.Background()
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
@@ -42,16 +43,30 @@ func main() {
 	redisClient := utils.NewRedisClient(rdb)
 	authService := services.NewAuthService(userRepo, redisClient)
 	authHandler := handlers.NewAuthHandler(authService)
-
+	
 	articleRepo := repositories.NewArticleRepo(db)
 	articleService := services.NewArticleService(articleRepo)
 	articleHandler := handlers.NewArticleHandler(articleService)
-
+	
+	fs := http.FileServer(http.Dir("assets"))
 	mux := http.NewServeMux()
+	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
 	mux.HandleFunc("POST /users", app_errors.HandleErrors(
 		middlewares.AuthMiddleware(
 			middlewares.VerifyRole(userHandler.CreateUser, []string{"admin"}, authService),
+			authService,
+		),
+	))
+	mux.HandleFunc("GET /users", app_errors.HandleErrors(
+		middlewares.AuthMiddleware(
+			middlewares.VerifyRole(userHandler.ListUsers, []string{"admin"}, authService),
+			authService,
+		),
+	))
+	mux.HandleFunc("DELETE /users/{id}", app_errors.HandleErrors(
+		middlewares.AuthMiddleware(
+			middlewares.VerifyRole(userHandler.DeleteUser, []string{"admin"}, authService),
 			authService,
 		),
 	))
@@ -70,7 +85,7 @@ func main() {
 			authService,
 		),
 	))
-	mux.HandleFunc("DELETE /articles/delete", app_errors.HandleErrors(
+	mux.HandleFunc("DELETE /articles/delete/{id}", app_errors.HandleErrors(
 		middlewares.AuthMiddleware(
 			middlewares.VerifyRole(articleHandler.DeleteArticle, []string{"admin", "editor"}, authService),
 			authService,

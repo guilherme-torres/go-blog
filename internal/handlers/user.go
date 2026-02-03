@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/http"
+	"strconv"
 
 	"github.com/guilherme-torres/go-blog/internal/models"
 	"github.com/guilherme-torres/go-blog/internal/services"
@@ -29,6 +30,30 @@ func (handler *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) e
 		return err
 	}
 	w.WriteHeader(http.StatusCreated)
+	return nil
+}
+
+func (handler *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) error {
+	users, err := handler.userService.ListUsers()
+	if err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(users); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (handler *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) error {
+	userIDParam := r.PathValue("id")
+	userID, err := strconv.Atoi(userIDParam)
+	if err != nil {
+		return err
+	}
+	if err := handler.userService.DeleteUser(userID); err != nil {
+		return err
+	}
 	return nil
 }
 
