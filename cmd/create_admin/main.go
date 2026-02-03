@@ -23,13 +23,18 @@ func main() {
 	}
 	userRepo := repositories.NewUserRepo(db)
 	userService := services.NewUserService(userRepo)
-	var email, name, password string
+	var email, name, password, passwordConfirm string
 	flag.StringVar(&email, "email", "user@example.com", "user's email")
 	flag.Parse()
 	fmt.Print("Name: ")
 	fmt.Scanln(&name)
 	fmt.Print("Password: ")
 	fmt.Scanln(&password)
+	fmt.Print("Confirm password: ")
+	fmt.Scanln(&passwordConfirm)
+	if passwordConfirm != password {
+		log.Fatal("Passwords don't match!")
+	}
 	user := &models.CreateUserDTO{
 		Name:     name,
 		Email:    email,
