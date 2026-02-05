@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"encoding/json"
+	"html/template"
 	"net/http"
 	"strconv"
 
@@ -40,10 +40,13 @@ func (handler *ArticleHandler) GetArticle(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		return err
 	}
-	if err := json.NewEncoder(w).Encode(article); err != nil {
-		return err
-	}
+	tmpl := template.Must(template.ParseFiles("./templates/article-detail.html"))
+	tmpl.Execute(w, article)
 	return nil
+}
+
+type ArticlesPage struct {
+	Articles []*models.ListArticleDTO
 }
 
 func (handler *ArticleHandler) ListArticles(w http.ResponseWriter, r *http.Request) error {
@@ -51,10 +54,8 @@ func (handler *ArticleHandler) ListArticles(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		return err
 	}
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(articles); err != nil {
-		return err
-	}
+	tmpl := template.Must(template.ParseFiles("./templates/articles.html"))
+	tmpl.Execute(w, &ArticlesPage{Articles: articles})
 	return nil
 }
 
@@ -67,5 +68,6 @@ func (handler *ArticleHandler) DeleteArticle(w http.ResponseWriter, r *http.Requ
 	if err := handler.articleService.DeleteArticle(articleID); err != nil {
 		return err
 	}
+	http.Redirect(w, r, "/admin", http.StatusSeeOther)
 	return nil
 }

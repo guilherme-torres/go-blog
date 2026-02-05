@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Articles</title>
+</head>
+
+<body>
+    <h1>Articles</h1>
+    {{range .Articles}}
+    <div>
+        <div>
+            <h3>{{.AuthorName}}</h3>
+            <span>{{.PublishedAt}}</span>
+        </div>
+        <h2><a href="/articles/{{.ID}}">{{.Title}}</a></h2>
+    </div>
+    {{end}}
+</body>
+
+</html>

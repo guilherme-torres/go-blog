@@ -26,9 +26,6 @@ func main() {
 	if err := db.Ping(); err != nil {
 		log.Fatal("Não foi possível conectar ao banco de dados:", err)
 	}
-	userRepo := repositories.NewUserRepo(db)
-	userService := services.NewUserService(userRepo)
-	userHandler := handlers.NewUserHandler(userService)
 	
 	ctx := context.Background()
 	rdb := redis.NewClient(&redis.Options{
@@ -41,35 +38,23 @@ func main() {
 		log.Fatal("Não foi possível conectar ao redis:", err)
 	}
 	redisClient := utils.NewRedisClient(rdb)
-	authService := services.NewAuthService(userRepo, redisClient)
-	authHandler := handlers.NewAuthHandler(authService)
-	
+
+	userRepo := repositories.NewUserRepo(db)
 	articleRepo := repositories.NewArticleRepo(db)
-	articleService := services.NewArticleService(articleRepo)
-	articleHandler := handlers.NewArticleHandler(articleService)
 	
+	userService := services.NewUserService(userRepo)
+	authService := services.NewAuthService(userRepo, redisClient)
+	articleService := services.NewArticleService(articleRepo)
+	
+	userHandler := handlers.NewUserHandler(userService, articleService)
+	authHandler := handlers.NewAuthHandler(authService)
+	articleHandler := handlers.NewArticleHandler(articleService)
+
 	fs := http.FileServer(http.Dir("assets"))
 	mux := http.NewServeMux()
+
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
-	mux.HandleFunc("POST /users", app_errors.HandleErrors(
-		middlewares.AuthMiddleware(
-			middlewares.VerifyRole(userHandler.CreateUser, []string{"admin"}, authService),
-			authService,
-		),
-	))
-	mux.HandleFunc("GET /users", app_errors.HandleErrors(
-		middlewares.AuthMiddleware(
-			middlewares.VerifyRole(userHandler.ListUsers, []string{"admin"}, authService),
-			authService,
-		),
-	))
-	mux.HandleFunc("DELETE /users/{id}", app_errors.HandleErrors(
-		middlewares.AuthMiddleware(
-			middlewares.VerifyRole(userHandler.DeleteUser, []string{"admin"}, authService),
-			authService,
-		),
-	))
 	mux.HandleFunc("POST /admin/login", app_errors.HandleErrors(authHandler.Login))
 	mux.HandleFunc("GET /admin/login", app_errors.HandleErrors(authHandler.Login))
 	mux.HandleFunc("POST /admin/logout", app_errors.HandleErrors(middlewares.AuthMiddleware(authHandler.Logout, authService)))
@@ -79,13 +64,31 @@ func main() {
 			authService,
 		),
 	))
-	mux.HandleFunc("POST /articles/new", app_errors.HandleErrors(
+	mux.HandleFunc("POST /admin/users/new", app_errors.HandleErrors(
+		middlewares.AuthMiddleware(
+			middlewares.VerifyRole(userHandler.CreateUser, []string{"admin"}, authService),
+			authService,
+		),
+	))
+	mux.HandleFunc("GET /admin/users", app_errors.HandleErrors(
+		middlewares.AuthMiddleware(
+			middlewares.VerifyRole(userHandler.ListUsers, []string{"admin"}, authService),
+			authService,
+		),
+	))
+	mux.HandleFunc("GET /admin/users/{id}/delete", app_errors.HandleErrors(
+		middlewares.AuthMiddleware(
+			middlewares.VerifyRole(userHandler.DeleteUser, []string{"admin"}, authService),
+			authService,
+		),
+	))
+	mux.HandleFunc("POST /admin/articles/new", app_errors.HandleErrors(
 		middlewares.AuthMiddleware(
 			middlewares.VerifyRole(articleHandler.CreateArticle, []string{"admin", "editor"}, authService),
 			authService,
 		),
 	))
-	mux.HandleFunc("DELETE /articles/delete/{id}", app_errors.HandleErrors(
+	mux.HandleFunc("GET /admin/articles/{id}/delete", app_errors.HandleErrors(
 		middlewares.AuthMiddleware(
 			middlewares.VerifyRole(articleHandler.DeleteArticle, []string{"admin", "editor"}, authService),
 			authService,

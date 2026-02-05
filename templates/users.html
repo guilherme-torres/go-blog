@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users</title>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="/admin">Articles</a>
+            <a href="/admin/users">Users</a>
+            <form action="/admin/logout" method="post">
+                <button type="submit">Logout</button>
+            </form>
+        </nav>
+    </header>
+    <main>
+        <div>
+            <h1>New User</h1>
+            <form action="/admin/users/new" method="post">
+                <div>
+                    <label for="name">Name</label>
+                    <input id="name" name="name" type="text" />
+                </div>
+                <div>
+                    <label for="email">Email</label>
+                    <input id="email" name="email" type="email" />
+                </div>
+                <div>
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" />
+                </div>
+                <div>
+                    <label for="role">Role</label>
+                    <select name="role" id="role">
+                        <option value="admin">admin</option>
+                        <option value="editor" selected>editor</option>
+                        <option value="user">user</option>
+                    </select>
+                </div>
+                <button type="submit">Create</button>
+            </form>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Users}}
+                <tr>
+                    <td>{{.ID}}</td>
+                    <td>{{.Name}}</td>
+                    <td>{{.Email}}</td>
+                    <td>{{.Role}}</td>
+                    <td>
+                        <a href="/admin/users/{{.ID}}/delete">delete</a>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </main>
+</body>
+
+</html>

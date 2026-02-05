@@ -40,7 +40,8 @@ func (service *ArticleService) GetArticle(id int) (*models.ListArticleDTO, error
 		ID:          article.ID,
 		Title:       article.Title,
 		Content:     article.Content,
-		AuthorID:    article.AuthorID,
+		AuthorName:  article.AuthorName,
+		AuthorEmail: article.AuthorEmail,
 		PublishedAt: article.PublishedAt,
 		UpdatedAt:   article.UpdatedAt,
 	}, nil
@@ -51,12 +52,13 @@ func (service *ArticleService) ListArticles() ([]*models.ListArticleDTO, error) 
 	if err != nil {
 		return nil, err
 	}
-	articlesResponse := utils.Map(articles, func(article *models.ArticleDB) *models.ListArticleDTO {
+	articlesResponse := utils.Map(articles, func(article *models.ArticleWithAuthor) *models.ListArticleDTO {
 		return &models.ListArticleDTO{
 			ID:          article.ID,
 			Title:       article.Title,
 			Content:     article.Content,
-			AuthorID:    article.AuthorID,
+			AuthorName:  article.AuthorName,
+			AuthorEmail: article.AuthorEmail,
 			PublishedAt: article.PublishedAt,
 			UpdatedAt:   article.UpdatedAt,
 		}

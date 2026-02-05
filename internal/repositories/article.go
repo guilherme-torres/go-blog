@@ -29,20 +29,25 @@ func (repo *ArticleRepository) Create(article *models.CreateArticleDB) (int64, e
 	return rowAffected, nil
 }
 
-func (repo *ArticleRepository) List() ([]*models.ArticleDB, error) {
-	rows, err := repo.db.Query(`SELECT id, title, content, author_id, published_at, updated_at FROM articles`)
+func (repo *ArticleRepository) List() ([]*models.ArticleWithAuthor, error) {
+	rows, err := repo.db.Query(`
+		SELECT a.id, a.title, a.content, u.name as author_name, u.email as author_email, a.published_at, a.updated_at
+		FROM articles a INNER JOIN users u
+		ON a.author_id == u.id
+	`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var users []*models.ArticleDB
+	var users []*models.ArticleWithAuthor
 	for rows.Next() {
-		article := &models.ArticleDB{}
+		article := &models.ArticleWithAuthor{}
 		if err := rows.Scan(
 			&article.ID,
 			&article.Title,
 			&article.Content,
-			&article.AuthorID,
+			&article.AuthorName,
+			&article.AuthorEmail,
 			&article.PublishedAt,
 			&article.UpdatedAt,
 		); err != nil {
@@ -53,17 +58,19 @@ func (repo *ArticleRepository) List() ([]*models.ArticleDB, error) {
 	return users, nil
 }
 
-func (repo *ArticleRepository) Get(id int) (*models.ArticleDB, error) {
+func (repo *ArticleRepository) Get(id int) (*models.ArticleWithAuthor, error) {
 	row := repo.db.QueryRow(`
-		SELECT id, title, content, author_id, published_at, updated_at
-		FROM articles WHERE id = ?`, id,
+		SELECT a.id, a.title, a.content, u.name as author_name, u.email as author_email, a.published_at, a.updated_at
+		FROM articles a INNER JOIN users u
+		ON a.author_id == u.id WHERE a.id = ?`, id,
 	)
-	article := &models.ArticleDB{}
+	article := &models.ArticleWithAuthor{}
 	err := row.Scan(
 		&article.ID,
 		&article.Title,
 		&article.Content,
-		&article.AuthorID,
+		&article.AuthorName,
+		&article.AuthorEmail,
 		&article.PublishedAt,
 		&article.UpdatedAt,
 	)

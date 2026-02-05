@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -12,25 +11,29 @@ import (
 
 type UserHandler struct {
 	userService *services.UserService
+	articleService     *services.ArticleService
 }
 
-func NewUserHandler(userService *services.UserService) *UserHandler {
-	return &UserHandler{userService: userService}
+func NewUserHandler(userService *services.UserService, articleService *services.ArticleService) *UserHandler {
+	return &UserHandler{userService: userService, articleService: articleService}
 }
 
 func (handler *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 	user := &models.CreateUserDTO{}
-	err := json.NewDecoder(r.Body).Decode(user)
+	user.Email = r.FormValue("email")
+	user.Name = r.FormValue("name")
+	user.Password = r.FormValue("password")
+	user.Role = r.FormValue("role")
+	err := handler.userService.CreateUser(user)
 	if err != nil {
 		return err
 	}
-	defer r.Body.Close()
-	err = handler.userService.CreateUser(user)
-	if err != nil {
-		return err
-	}
-	w.WriteHeader(http.StatusCreated)
+	http.Redirect(w, r, "/admin/users", http.StatusSeeOther)
 	return nil
+}
+
+type UsersPage struct {
+	Users []*models.ListUserDTO
 }
 
 func (handler *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) error {
@@ -38,10 +41,8 @@ func (handler *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) er
 	if err != nil {
 		return err
 	}
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(users); err != nil {
-		return err
-	}
+	tmpl := template.Must(template.ParseFiles("./templates/users.html"))
+	tmpl.Execute(w, &UsersPage{Users: users})
 	return nil
 }
 
@@ -54,11 +55,20 @@ func (handler *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) e
 	if err := handler.userService.DeleteUser(userID); err != nil {
 		return err
 	}
+	http.Redirect(w, r, "/admin/users", http.StatusSeeOther)
 	return nil
 }
 
+type AdminPage struct {
+	Articles []*models.ListArticleDTO
+}
+
 func (handler *UserHandler) Admin(w http.ResponseWriter, r *http.Request) error {
-	tmpl := template.Must(template.ParseFiles("./assets/templates/admin.html"))
-	tmpl.Execute(w, nil)
+	articles, err := handler.articleService.ListArticles()
+	if err != nil {
+		return err
+	}
+	tmpl := template.Must(template.ParseFiles("./templates/admin.html"))
+	tmpl.Execute(w, &AdminPage{Articles: articles})
 	return nil
 }

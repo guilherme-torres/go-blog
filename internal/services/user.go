@@ -46,6 +46,7 @@ func (service *UserService) ListUsers() ([]*models.ListUserDTO, error) {
 			ID:    user.ID,
 			Name:  user.Name,
 			Email: user.Email,
+			Role:  user.Role,
 		}
 	})
 	return usersResponse, nil

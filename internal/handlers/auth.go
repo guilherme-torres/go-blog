@@ -40,7 +40,7 @@ func (handler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error 
 		http.Redirect(w, r, "/admin", http.StatusSeeOther)
 		return nil
 	}
-	tmpl := template.Must(template.ParseFiles("./assets/templates/login.html"))
+	tmpl := template.Must(template.ParseFiles("./templates/login.html"))
 	tmpl.Execute(w, nil)
 	return nil
 }

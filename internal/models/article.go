@@ -9,6 +9,16 @@ type ArticleDB struct {
 	UpdatedAt   string
 }
 
+type ArticleWithAuthor struct {
+	ID          int
+	Title       string
+	Content     string
+	AuthorName  string
+	AuthorEmail string
+	PublishedAt string
+	UpdatedAt   string
+}
+
 type CreateArticleDB struct {
 	Title    string
 	Content  string
@@ -30,7 +40,8 @@ type ListArticleDTO struct {
 	ID          int    `json:"id"`
 	Title       string `json:"title"`
 	Content     string `json:"content"`
-	AuthorID    int    `json:"authorId"`
+	AuthorName  string `json:"authorName"`
+	AuthorEmail string `json:"authorEmail"`
 	PublishedAt string `json:"publishedAt"`
 	UpdatedAt   string `json:"updatedAt"`
 }

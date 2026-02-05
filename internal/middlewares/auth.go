@@ -38,7 +38,7 @@ func AuthMiddleware(handler app_errors.Handler, authService *services.AuthServic
 }
 
 func VerifyRole(handler app_errors.Handler, roles []string, authService *services.AuthService) app_errors.Handler {
-	errorTmpl := template.Must(template.ParseFiles("./assets/templates/403.html"))
+	errorTmpl := template.Must(template.ParseFiles("./templates/403.html"))
 	return func(w http.ResponseWriter, r *http.Request) error {
 		userRole := r.Context().Value("user_role").(string)
 		sid := r.Context().Value("sid").(string)
