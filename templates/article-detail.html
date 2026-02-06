@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}}</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+    <script src="/assets/js/purify.min.js"></script>
 </head>
 
 <body>
@@ -13,7 +15,11 @@
         <span>{{.PublishedAt}}</span>
     </div>
     <h1>{{.Title}}</h1>
-    <p>{{.Content}}</p>
+    <div id="content">{{.Content}}</div>
+
+    <script>
+        document.getElementById("content").innerHTML = DOMPurify.sanitize(marked.parse("{{.Content}}"));
+    </script>
 </body>
 
 </html>

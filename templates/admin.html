@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin</title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/simplemde.min.css">
+    <script src="/assets/js/simplemde.min.js"></script>
 </head>
 
 <body>
@@ -59,6 +61,18 @@
             </tbody>
         </table>
     </main>
+
+    <script>
+        const simplemde = new SimpleMDE({
+            autosave: {
+                enabled: true,
+                uniqueId: "MyUniqueID",
+                delay: 1000,
+            },
+            spellChecker: false,
+            element: document.getElementById("content"),
+        })
+    </script>
 
     <script src="/assets/js/bootstrap.bundle.min.js"></script>
 </body>
