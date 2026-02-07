@@ -1,23 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
+{{define "title"}}Articles{{end}}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Articles</title>
-</head>
-
-<body>
-    <h1>Articles</h1>
-    {{range .Articles}}
-    <div>
+{{define "main"}}
+<h1 class="mb-4">Articles</h1>
+{{range .Articles}}
+<div class="card mb-2">
+    <div class="card-body">
         <div>
             <h3>{{.AuthorName}}</h3>
             <span>{{.PublishedAt}}</span>
         </div>
         <h2><a href="/articles/{{.ID}}">{{.Title}}</a></h2>
     </div>
-    {{end}}
-</body>
-
-</html>
+</div>
+{{end}}
+{{end}}

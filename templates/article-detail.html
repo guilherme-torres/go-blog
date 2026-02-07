@@ -1,25 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
+{{define "title"}}{{.Title}}{{end}}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Title}}</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
-    <script src="/assets/js/purify.min.js"></script>
-</head>
+{{define "scripts_head"}}
+<script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+<script src="/assets/js/purify.min.js"></script>
+{{end}}
 
-<body>
-    <div>
-        <h3>{{.AuthorName}}</h3>
-        <span>{{.PublishedAt}}</span>
-    </div>
-    <h1>{{.Title}}</h1>
-    <div id="content">{{.Content}}</div>
+{{define "main"}}
+<div>
+    <h3>{{.AuthorName}}</h3>
+    <span>{{.PublishedAt}}</span>
+</div>
+<h1>{{.Title}}</h1>
+<div id="content">{{.Content}}</div>
+{{end}}
 
-    <script>
-        document.getElementById("content").innerHTML = DOMPurify.sanitize(marked.parse("{{.Content}}"));
-    </script>
-</body>
-
-</html>
+{{define "scripts_body"}}
+<script>
+    document.getElementById("content").innerHTML = DOMPurify.sanitize(marked.parse("{{.Content}}"));
+</script>
+{{end}}

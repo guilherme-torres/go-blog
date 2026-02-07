@@ -40,8 +40,11 @@ func (handler *ArticleHandler) GetArticle(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		return err
 	}
-	tmpl := template.Must(template.ParseFiles("./templates/article-detail.html"))
-	tmpl.Execute(w, article)
+	tmpl := template.Must(template.ParseFiles(
+		"./templates/articles-base.html",
+		"./templates/article-detail.html",
+	))
+	tmpl.ExecuteTemplate(w, "base", article)
 	return nil
 }
 
@@ -54,8 +57,11 @@ func (handler *ArticleHandler) ListArticles(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		return err
 	}
-	tmpl := template.Must(template.ParseFiles("./templates/articles.html"))
-	tmpl.Execute(w, &ArticlesPage{Articles: articles})
+	tmpl := template.Must(template.ParseFiles(
+		"./templates/articles-base.html",
+		"./templates/articles.html",
+	))
+	tmpl.ExecuteTemplate(w, "base", &ArticlesPage{Articles: articles})
 	return nil
 }
 
