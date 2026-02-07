@@ -1,80 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
+{{define "title"}}Admin{{end}}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin</title>
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/assets/css/simplemde.min.css">
-    <script src="/assets/js/simplemde.min.js"></script>
-</head>
+{{define "scripts_head"}}
+<script src="/assets/js/simplemde.min.js"></script>
+{{end}}
 
-<body>
-    <header>
-        <nav>
-            <a href="/admin">Articles</a>
-            <a href="/admin/users">Users</a>
-            <form action="/admin/logout" method="post">
-                <button type="submit">Logout</button>
-            </form>
-        </nav>
-    </header>
-    <main>
-        <div>
-            <h1>New Article</h1>
-            <form action="/admin/articles/new" method="post">
-                <div>
-                    <label for="title">Title:</label>
-                    <input type="text" id="title" name="title">
-                </div>
-                <div>
-                    <label for="content">Content:</label>
-                    <textarea id="content" name="content"></textarea>
-                </div>
-                <button type="submit">Create</button>
-            </form>
+{{define "main"}}
+<div class="d-flex justify-content-end">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#new-article">
+        New article
+    </button>
+</div>
+<div class="modal fade" id="new-article" tabindex="-1" aria-labelledby="new-article-label" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="new-article-label">New aticle</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-article-form" action="/admin/articles/new" method="post">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title">
+                    </div>
+                    <div>
+                        <label for="content" class="form-label">Content:</label>
+                        <textarea id="content" name="content"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" form="create-article-form">Create</button>
+            </div>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>Publication date</th>
-                    <th>Update date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{range .Articles}}
-                <tr>
-                    <td>{{.ID}}</td>
-                    <td><a href="/articles/{{.ID}}">{{.Title}}</a></td>
-                    <td>{{.AuthorEmail}}</td>
-                    <td>{{.PublishedAt}}</td>
-                    <td>{{.UpdatedAt}}</td>
-                    <td>
-                        <a href="/admin/articles/{{.ID}}/delete">delete</a>
-                    </td>
-                </tr>
-                {{end}}
-            </tbody>
-        </table>
-    </main>
+    </div>
+</div>
+<h1 class="mb-3">Articles</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Publication date</th>
+            <th>Update date</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Articles}}
+        <tr>
+            <td>{{.ID}}</td>
+            <td><a href="/articles/{{.ID}}">{{.Title}}</a></td>
+            <td>{{.AuthorEmail}}</td>
+            <td>{{.PublishedAt}}</td>
+            <td>{{.UpdatedAt}}</td>
+            <td>
+                <a href="/admin/articles/{{.ID}}/delete" class="text-danger">delete</a>
+            </td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}
 
-    <script>
-        const simplemde = new SimpleMDE({
-            autosave: {
-                enabled: true,
-                uniqueId: "MyUniqueID",
-                delay: 1000,
-            },
-            spellChecker: false,
-            element: document.getElementById("content"),
-        })
-    </script>
-
-    <script src="/assets/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+{{define "scripts_body"}}
+<script>
+    const simplemde = new SimpleMDE({
+        autosave: {
+            enabled: true,
+            uniqueId: "MyUniqueID",
+            delay: 1000,
+        },
+        spellChecker: false,
+        element: document.getElementById("content"),
+    })
+</script>
+{{end}}

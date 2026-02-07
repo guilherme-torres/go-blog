@@ -57,7 +57,7 @@ func main() {
 
 	mux.HandleFunc("POST /admin/login", app_errors.HandleErrors(authHandler.Login))
 	mux.HandleFunc("GET /admin/login", app_errors.HandleErrors(authHandler.Login))
-	mux.HandleFunc("POST /admin/logout", app_errors.HandleErrors(middlewares.AuthMiddleware(authHandler.Logout, authService)))
+	mux.HandleFunc("GET /admin/logout", app_errors.HandleErrors(middlewares.AuthMiddleware(authHandler.Logout, authService)))
 	mux.HandleFunc("GET /admin", app_errors.HandleErrors(
 		middlewares.AuthMiddleware(
 			middlewares.VerifyRole(userHandler.Admin, []string{"admin", "editor"}, authService),

@@ -1,11 +1,15 @@
 {{define "header"}}
-<header>
-        <nav>
-            <a href="/admin">Articles</a>
-            <a href="/admin/users">Users</a>
-            <form action="/admin/logout" method="post">
-                <button type="submit">Logout</button>
-            </form>
-        </nav>
-    </header>
+<header class="container-fluid p-3 border-bottom">
+    <ul class="nav justify-content-center">
+        <li class="nav-item">
+            <a class="nav-link" href="/admin">Articles</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/admin/users">Users</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-danger" href="/admin/logout">Logout</a>
+        </li>
+    </ul>
+</header>
 {{end}}

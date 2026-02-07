@@ -10,8 +10,8 @@ import (
 )
 
 type UserHandler struct {
-	userService *services.UserService
-	articleService     *services.ArticleService
+	userService    *services.UserService
+	articleService *services.ArticleService
 }
 
 func NewUserHandler(userService *services.UserService, articleService *services.ArticleService) *UserHandler {
@@ -41,8 +41,12 @@ func (handler *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) er
 	if err != nil {
 		return err
 	}
-	tmpl := template.Must(template.ParseFiles("./templates/users.html"))
-	tmpl.Execute(w, &UsersPage{Users: users})
+	tmpl := template.Must(template.ParseFiles(
+		"./templates/admin-base.html",
+		"./templates/admin-header.html",
+		"./templates/users.html",
+	))
+	tmpl.ExecuteTemplate(w, "base", &UsersPage{Users: users})
 	return nil
 }
 
@@ -68,7 +72,11 @@ func (handler *UserHandler) Admin(w http.ResponseWriter, r *http.Request) error 
 	if err != nil {
 		return err
 	}
-	tmpl := template.Must(template.ParseFiles("./templates/admin.html"))
-	tmpl.Execute(w, &AdminPage{Articles: articles})
+	tmpl := template.Must(template.ParseFiles(
+		"./templates/admin-base.html",
+		"./templates/admin-header.html",
+		"./templates/admin.html",
+	))
+	tmpl.ExecuteTemplate(w, "base", &AdminPage{Articles: articles})
 	return nil
 }
