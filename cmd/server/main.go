@@ -94,6 +94,12 @@ func main() {
 			authService,
 		),
 	))
+	mux.HandleFunc("POST /admin/articles/{id}/update", app_errors.HandleErrors(
+		middlewares.AuthMiddleware(
+			middlewares.VerifyRole(articleHandler.UpdateArticle, []string{"admin", "editor"}, authService),
+			authService,
+		),
+	))
 	mux.HandleFunc("GET /articles/{id}", app_errors.HandleErrors(articleHandler.GetArticle))
 	mux.HandleFunc("GET /articles", app_errors.HandleErrors(articleHandler.ListArticles))
 

@@ -77,3 +77,20 @@ func (handler *ArticleHandler) DeleteArticle(w http.ResponseWriter, r *http.Requ
 	http.Redirect(w, r, "/admin", http.StatusSeeOther)
 	return nil
 }
+
+func (handler *ArticleHandler) UpdateArticle(w http.ResponseWriter, r *http.Request) error {
+	articleIDParam := r.PathValue("id")
+	articleID, err := strconv.Atoi(articleIDParam)
+	if err != nil {
+		return err
+	}
+	article := &models.UpdateArticleDTO{}
+	titleStr := r.FormValue("title")
+	contentStr := r.FormValue("content")
+	article.Title = &titleStr
+	article.Content = &contentStr
+	if err := handler.articleService.UpdateArticle(articleID, article); err != nil {
+		return err
+	}
+	return nil
+}

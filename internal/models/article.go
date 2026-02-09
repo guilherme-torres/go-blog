@@ -45,3 +45,8 @@ type ListArticleDTO struct {
 	PublishedAt string `json:"publishedAt"`
 	UpdatedAt   string `json:"updatedAt"`
 }
+
+type UpdateArticleDTO struct {
+	Title     *string `json:"title,omitempty"`
+	Content   *string `json:"content,omitempty"`
+}

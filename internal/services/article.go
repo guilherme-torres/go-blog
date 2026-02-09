@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	app_errors "github.com/guilherme-torres/go-blog/internal/errors"
 	"github.com/guilherme-torres/go-blog/internal/models"
 	"github.com/guilherme-torres/go-blog/internal/repositories"
@@ -66,8 +68,22 @@ func (service *ArticleService) ListArticles() ([]*models.ListArticleDTO, error) 
 	return articlesResponse, nil
 }
 
-func (service *ArticleService) UpdateArticle(id int) (*models.ListArticleDTO, error) {
-	return nil, nil
+func (service *ArticleService) UpdateArticle(id int, data *models.UpdateArticleDTO) error {
+	articleUpdate := &models.UpdateArticleDB{}
+	if data.Title != nil {
+		articleUpdate.Title = data.Title
+	}
+	if data.Content != nil {
+		articleUpdate.Content = data.Content
+	}
+	currentTime := time.Now()
+	layout := "2006-01-02 15:04:05"
+	articleUpdate.UpdatedAt = currentTime.Format(layout)
+	err := service.articleRepo.Update(id, articleUpdate)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (service *ArticleService) DeleteArticle(id int) error {
